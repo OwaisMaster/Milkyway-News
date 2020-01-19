@@ -1,0 +1,49 @@
+
+body {
+    background-color: #83828293 ;
+}
+
+.intro {
+    background-color: snow;
+    padding: 20px;
+    height: 180px;
+    flex-wrap: wrap;
+}
+
+.title, .subtitle {
+    color: snow;
+    background-color: rgb(0, 0, 0);
+    margin: auto;
+    padding: 5px;
+}
+
+.jumbotron {
+    text-align: center;
+}
+
+#jumbotron {
+    background: url("../images/milkyway.jpg") no-repeat center;
+    background-position-y: center;
+    width: 1465px auto;
+    margin-left: -180px auto;
+}
+
+#titleArea {
+    text-align: center;
+}
+
+h2 {
+    margin-left: -20px;
+}
+
+.storyTag {
+    font-size: small;
+}
+
+#articleImages {
+    height: 75px;
+}
+
+#footer {
+    text-align: center;
+}
