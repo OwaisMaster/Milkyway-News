@@ -2,7 +2,7 @@
 <div id="topArea">
     <br>
     <div class="row">
-        <div class="col-md">
+        <div class="col-sm">
             <div id="titleArea">
                 <div class="jumbotron" id="jumbotron">
                 <br>
@@ -10,7 +10,7 @@
                     <div class="col-sm-4"></div>
                     <div class="col-sm-4">
                         <h1 class="title">MilkyWay</h1>
-                        <h4 class="subtitle">Hourly News Scraper</h4>
+                        <h4 class="subtitle">News Center</h4>
                     </div>
                     <div class="col-sm-4"></div>
                 </div>
@@ -23,35 +23,30 @@
 
     <br>
     <div class="row">
-        <div class="jumbotron col-sm-10">
+        <div class="col-sm-2"></div>
+        <div class="jumbotron col-sm-8">
                 <div class="intro">
-                <h3>Welcome to the MilkyWay!</h3>
-                <p>Share your thoughts on each article</p>
-                <p>Freshly scraped for your viewing</p>
-                <p><b>The galaxy is huge, get your voice heard now!</b></p>
+                <h3>Welcome to the MilkyWay News Scraper!</h3>
+                <p>- Share your thoughts on each article</p>
+                <p>- Freshly scraped for your viewing</p>
+                <p><b>The galaxy is huge,<span id="emphasis"> get your voice heard NOW!</span></b></p>
                 <br>
             </div>
         </div>
+        <div class="col-sm-2"></div>
     </div>
     <br>
 </div>
 
 <br>
-<div class="buttonRow">
-   
-        <button class="tagSearch">Search by Tag</button>
-        <button class="bylineSearch">Search by Byline</button>
-    
-<a href="/" class="atag">
-        <button class="allButton">All Stories</button>
-    </a>
 
-    <br>
-</div>
-<div class="container">
+<div class="container" id="articleBackground">
+    
+    
+
     <div class="row">
 
-        <div class="col-md-3" id="tagArea" style="display: {{display1}}">
+        <div class="col-sm-3" id="tagArea" style="display: {{display1}}">
             <br>
             <h2>Article Tags |</h2>
             <br> {{#each tagList}}
@@ -61,7 +56,7 @@
             <br>
             <br> {{/each}}
         </div>
-        <div class="col-md-3" id="bylineArea" style="display: {{display2}}">
+        <div class="col-sm-3" id="bylineArea" style="display: {{display2}}">
             <br>
             <h2>Bylines</h2>
             <br> {{#each bylineList}}
@@ -76,7 +71,20 @@
             <div id="articleArea">
                 <br>
                 <h2>|   Reuters Articles</h2>
+                <div class="buttonRow">
+   
+        <button class="tagSearch">Search by Tag</button>
+        <button class="bylineSearch">Search by Byline</button>
+    
+        <a href="/" class="atag">
+        <button class="allButton">All Stories</button>
+        </a>
+
+        <br>
+
+    </div>
                 <br>
+                
                 <div class="panel-group" id="accordion">
                     {{#each articles}}
                     <div class="row">
@@ -112,7 +120,7 @@
                         </div>
                     </div>
                     </div>
-                    <br>
+                    <hr id="break">
                     {{/each}}
 
                 </div>
