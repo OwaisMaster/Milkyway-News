@@ -156,7 +156,7 @@ module.exports = app => {
             //Also find all articles so that all of the tags can still be displayed in the left column
             db.Article.find({}).lean().populate("comments").then(allData => {
                 const tags = [...new Set(allData.map(a => a.tag))];
-                tagged.map(a => commentList.push(a.comments[0]));
+                //tagged.map(a => commentList.push(a.comments[0]));
                 //console.log(commentList);
                 tags.sort();
                 const objTags = [];
@@ -216,6 +216,27 @@ module.exports = app => {
                 // If an error occurs, send it back to the client
                 res.send(err);
             });
+    });
+
+    app.post("/deleteComment/:articleID/comments/:id", (req, res) => {
+        var id = req.params.id;
+        var articleID = req.params.articleID;
+        console.log("articleID: " + articleID);
+        console.log("id: " + id);
+        console.log(req.body);
+
+        //Find the specific comment by its id and remove it
+        db.Comment.findByIdAndRemove(id, (err, data) => {
+            // As always, handle any potential errors:
+            if (err) return res.status(500).send(err);
+            console.log("data._id: " + data._id);
+        }).then(data2 => {
+            //Find the specific article by its id and update its comments array, pulling out the deleted comment's id
+            return db.Article.findByIdAndUpdate(articleID, { $pull: { comments: id } }, { multi: true });
+        }).then(dbArticle => {
+            //Let the client know of the successful deletion
+            return res.status(200).send("Comment successfully deleted");
+        });
     });
 
 };
