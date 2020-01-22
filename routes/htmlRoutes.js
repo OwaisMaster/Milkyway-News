@@ -9,7 +9,7 @@ module.exports = app => {
 
     console.log("Test");
 
-    app.get("/", (req, res) => {
+    app.get("/" || "*", (req, res) => {
         console.log("Retrieving articles...");
         //Axios scrapes the Reuters World News website
         axios.get("https://www.reuters.com/news/world").then(response => {
@@ -21,7 +21,7 @@ module.exports = app => {
 
             // Now, we grab the headline, byline, tag, article link, and summary from every Feedcard element
             $(".FeedItem_item").each((i, element) => {
-                console.log(results.length);
+                //console.log(results.length);
                 //The loop stops after ten results
                 if (results.length > 9) {
                     return false;
@@ -33,8 +33,6 @@ module.exports = app => {
                 var articleLink = $(element).find("h2>a").attr("href");
                 var imageSrc = $(element).find("img").attr("src");
                 var summary = $(element).find("p.FeedItemLede_lede").text().trim();
-
-                console.log("Posted: " + date);
 
                 // Add the headline, byline, tag, article link, and summary, and save them as properties of the result object
                 result = {
@@ -55,19 +53,14 @@ module.exports = app => {
                 if (articleLink === undefined) {
                     articleLink = "https://google.com/" + results.length;
                 }
-                console.log("Data for Article " + results.length);
-                console.log("Headline: " + headline);
-                console.log("Tag: " + tag);
-                console.log("Article Link: " + articleLink);
-                console.log("Summary: " + summary);
-                console.log("Image Source: " + imageSrc);
+
                 //If all these have values, then the article information is added to the database (upserted if it is not already present)
                 if (headline && articleLink && summary) {
-                    console.log(1);
+                    //console.log(1);
                     db.Article.updateOne({ headline: headline, articleLink: articleLink }, result, { upsert: true })
                         .then(dbArticles => {
                             // View the added articles in the console                            
-                            console.log(dbArticles);
+                            //console.log(dbArticles);
                         })
                         .catch(err => {
                             // If an error occurred, log it
@@ -85,6 +78,8 @@ module.exports = app => {
 
             //Creates a tags array of all the tags without any repeats
             const tags = [...new Set(data.map(a => a.tag))];
+            //const comments = [...new Set(data.map(a => a.comments))];
+            //console.log(comments);
             //Alphabetizes the array
             tags.sort();
             const objTags = [];
@@ -101,7 +96,7 @@ module.exports = app => {
 
             //Renders index.handlebars, reversing the data order so that the most recently added articles are displayed first
             //The objTags and the objBylines arrays are for the tag and byline columns, and display1 and display2 are for hiding the appropriate column (bylines in this case)
-            res.render("index", { articles: results.reverse(), tagList: objTags, updateList: objUpdatedTimes, display1: "block", display2: "none" });
+            res.render("index", { articles: results.reverse(), tagList: objTags, updateList: objUpdatedTimes, display1: "block" });
 
         })
             .catch(err => {
@@ -109,4 +104,118 @@ module.exports = app => {
                 res.json(err);
             });
     });
+
+    app.get("/a", (req, res) => {
+        db.Article.find({}, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                res.json(data);
+            }
+        });
+    });
+
+    app.get("/acoms", (req, res) => {
+        db.Comment.find({}, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                res.json(data);
+            }
+        });
+    });
+
+    app.get("/tags/:tagName", (req, res) => {
+        let tagName = req.params.tagName;
+        var tagged = [];
+        var commentList = [];
+        //Find all articles with the specified tag name
+        db.Article.find({ tag: tagName }).lean().populate("comments").then(data => {
+            //Add an iterator property to each article object
+            for (var i = 0; i < data.length; i++) {
+                data[i].iterator = i;
+            }
+
+            data.map(article => tagged.push(
+                {
+                    headline: article.headline,
+                    updated: article.updated,
+                    tag: article.tag,
+                    articleLink: article.articleLink,
+                    imageSrc: article.imageSrc,
+                    summary: article.summary,
+                    _id: article._id,
+                    comments: article.comments
+                }
+            ));
+
+            //console.log(tagged[0].comments[0]);
+
+            //Also find all articles so that all of the tags can still be displayed in the left column
+            db.Article.find({}).lean().populate("comments").then(allData => {
+                const tags = [...new Set(allData.map(a => a.tag))];
+                tagged.map(a => commentList.push(a.comments[0]));
+                //console.log(commentList);
+                tags.sort();
+                const objTags = [];
+                tags.forEach(tag => objTags.push({ tagName: tag }));
+
+                res.render("index", { articles: tagged.reverse(), tagList: objTags, comments: commentList, display1: "block", display2: "none" });
+            })
+
+        })
+            .catch(err => {
+                // If an error occurs, send it back to the client
+                res.json(err);
+            });
+    });
+
+    app.get("/article/:id", (req, res) => {
+        var _id = req.params.id;
+        //var articleData = {};
+        console.log(_id);
+
+        db.Article.findById({ _id }).populate("comments").then(article => {
+            //console.log(article);
+
+            res.json(article);
+
+
+        })
+    })
+
+    app.post("/submitComment/articles/:id", (req, res) => {
+        var id = req.params.id;
+        console.log(id);
+        console.log(req.body);
+
+        //If there is a blank name value, then it is set to Anonymous
+        if (req.body.name == "") {
+            req.body.name = "Anonymous";
+        };
+
+        // Create a new Comment in the database
+        db.Comment.create(req.body)
+            .then(dbComment => {
+                console.log("dbComment._id: " + dbComment._id);
+
+                // If a Comment was created successfully, find its article (based on the id) and push the new Comment's _id to the Article's comments array
+                // { new: true } tells the query that we want it to return the updated Article -- it returns the original by default
+                // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+                return db.Article.findByIdAndUpdate(id, { $push: { comments: dbComment._id } }, { new: true });
+            })
+            .then(dbArticle => {
+                // If the Article was updated successfully, send it back to the client
+                console.log("dbArticle: ");
+                console.log(dbArticle);
+                res.send(dbArticle);
+            })
+            .catch(err => {
+                // If an error occurs, send it back to the client
+                res.send(err);
+            });
+    });
+
 };

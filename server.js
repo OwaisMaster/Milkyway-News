@@ -24,7 +24,7 @@ app.use(express.static("public"));
 require("./routes/htmlRoutes")(app);
 
 // Connect to the Mongo DB, unless deployed
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/tsdestinynews";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/milkywaynews";
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 

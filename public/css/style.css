@@ -59,7 +59,7 @@ h2 {
 }
 
 #articleImages {
-    height: 75px;
+    height: 150px;
 }
 
 #emphasis {
@@ -73,4 +73,6 @@ h2 {
 #footer {
     text-align: center;
     color: snow;
+    height: 25px;
+    background-color: black;
 }
