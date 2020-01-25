@@ -17,13 +17,13 @@ app.set("view engine", "handlebars");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// Make public a static folder
+
 app.use(express.static("public"));
 
 // Routes
 require("./routes/htmlRoutes")(app);
 
-// Connect to the Mongo DB, unless deployed
+// Connect to DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/milkywaynews";
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
