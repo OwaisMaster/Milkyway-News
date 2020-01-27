@@ -19,7 +19,7 @@ module.exports = app => {
             var result = {};
 
 
-            // Now, we grab the headline, time updated, tag, article link, image src and summary from every Feedcard element
+            // Now, we grab the headline, time updated, tag, article link, image src and summary from every FeedItem element
             $(".FeedItem_item").each((i, element) => {
                 //The loop stops after nine articles
                 if (results.length > 9) {
