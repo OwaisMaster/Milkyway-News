@@ -95,7 +95,6 @@ module.exports = app => {
             //Puts each time from the updatedTimes array into an object in the objUpdatedTimes array
             updatedTimes.forEach(postUpdate => objUpdatedTimes.push({ updatedPost: postUpdate }));
 
-            //The objTags and the objUpdated arrays are for the tag and updated time columns
             res.render("index", { articles: articles.reverse(), tagList: objTags, updateList: objUpdatedTimes, display1: "block" });
 
         })
@@ -184,7 +183,6 @@ module.exports = app => {
                 console.log("dbComment._id: " + dbComment._id);
 
                 // If comment was created successfully, find its article using the id and push the new Comment's _id to the Article's comments array
-                // { new: true } tells the query to return the updated Article -- returns the original by default
                 return db.Article.findByIdAndUpdate(id, { $push: { comments: dbComment._id } }, { new: true });
             })
             .then(dbArticle => {
